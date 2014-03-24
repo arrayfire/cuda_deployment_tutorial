@@ -1,4 +1,3 @@
-cuda_deployment_tutorial
-========================
+# Deploying CUDA
 
-Scripts to Deploy GPU Enabled Containers
+Scripts to deploy CUDA enabled containers. Tutorial given at GPU Technology Conference 2014.
