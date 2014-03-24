@@ -1,0 +1,34 @@
+#!/bin/bash
+set -e
+
+apt-get update
+
+# NTP
+apt-get install -y ntp
+cat >> /etc/ntp.conf <<EOF
+server 0.US.pool.ntp.org
+server 1.US.pool.ntp.org
+EOF
+
+# slurm
+# . install, config
+apt-get install -y slurm-llnl
+cp slurm.conf /etc/slurm-llnl
+chmod og+r /etc/slurm-llnl/slurm.conf
+
+# . munge key - - gen with /usr/sbin/create-munge-key
+chmod go-rwx munge.key
+chmod u+rwx munge.key
+cp -p munge.key /etc/munge
+chown munge /etc/munge/munge.key
+chgrp munge /etc/munge/munge.key
+
+# . gres
+cat > /etc/slurm-llnl/gres.conf <<EOF
+Name=gpu File=/dev/nvidia0 CPUs=0
+EOF
+
+# . server-side daemons
+/etc/init.d/slurm-llnl start
+/etc/init.d/munge start
+

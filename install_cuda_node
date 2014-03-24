@@ -1,0 +1,49 @@
+#!/bin/bash
+# usage: install_node <number>
+set -e
+
+NUM=$1
+NAME=$(printf 'c%0.3d' $NUM)
+EXT_IP=10.0.3.$((NUM + 2))
+INT_IP=10.0.5.$((NUM + 1))
+
+
+echo "creating node $NAME with ext ip $EXT_IP and int ip $INT_IP"
+
+CFG=$(mktemp)
+cp config $CFG
+sed -i "s@__IP__@$INT_IP/24@g" $CFG
+
+
+ADDR=$EXT_IP ./lxc-create -n $NAME -f $CFG -t debian-cuda
+lxc-start -n $NAME -d
+
+
+if [ ! -f .ssh/authorized_keys ] ; then
+    ssh-keygen -q -f id_rsa -N ""
+    mkdir -p .ssh/
+    cat id_rsa.pub > .ssh/authorized_keys
+    chmod -R 700 .ssh
+    chmod 700 id_rsa
+fi
+
+
+while ! ssh -i id_rsa -o StrictHostKeyChecking=no root@$EXT_IP exit ; do
+    echo "waiting for $NAME ($EXT_IP) to boot..."
+    sleep 1s
+done
+
+
+ssh -i id_rsa root@$EXT_IP -o StrictHostKeyChecking=no "cat >> /etc/hosts" <<EOF
+10.0.3.1     bridge
+10.0.5.1     c000
+10.0.5.2     c001
+10.0.5.3     c002
+10.0.5.4     c003
+EOF
+
+
+ssh -i id_rsa root@$EXT_IP -o StrictHostKeyChecking=no ./slurm_setup
+
+
+echo "[DONE]: node $NAME accessible at root@$EXT_IP"

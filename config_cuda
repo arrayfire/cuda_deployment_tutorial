@@ -1,0 +1,14 @@
+# net
+lxc.network.type = veth
+lxc.network.flags = up
+lxc.network.link = br0
+
+# macvlan
+lxc.network.type = macvlan
+lxc.network.macvlan.mode = bridge
+lxc.network.flags = up
+lxc.network.link = br1
+lxc.network.ipv4 = __IP__
+
+# cuda
+lxc.cgroup.devices.allow = c 195:* rwm
