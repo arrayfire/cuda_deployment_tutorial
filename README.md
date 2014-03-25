@@ -2,7 +2,7 @@
 
 Scripts to generate Debian-based CUDA-enabled containers linked together with
 the SLURM job manager. Tutorial given at GPU Technology Conference 2014. See
-[the slides](slides.html) for a detailed
+[the slides](raw/slides.html) for a detailed
 explanation. [Markdown source](slides.md) for the slides is included.
 
 > Note that these scripts do not constitute a production configuration, but
